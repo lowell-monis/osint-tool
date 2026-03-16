@@ -1,0 +1,21 @@
+# Environment
+.venv/
+venv/
+.env
+*.pyc
+__pycache__/
+
+# Data
+data/cache/
+data/outputs/
+*.csv
+*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# API keys
+config.ini
+secrets.toml
