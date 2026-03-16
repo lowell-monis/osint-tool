@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Environment
 .venv/
 venv/
@@ -19,3 +20,13 @@ data/outputs/
 # API keys
 config.ini
 secrets.toml
+=======
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables file
+.env
+
+>>>>>>> e9081ed767dd433ca644bc8c6d79fff053e904a9
