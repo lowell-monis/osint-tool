@@ -9,14 +9,12 @@ load_dotenv()
 # Put account details in .env
 user = os.getenv('BLUESKY_USER')
 pw = os.getenv('BLUESKY_PW')
+client = Client()
+client.login(user, pw)
 
 # Put deepl details in .env
 deepl_auth_key = os.getenv("AUTH_KEY")  # replace with your key
 deepl_client = deepl.DeepLClient(deepl_auth_key)
-
-# Log in to Bluesky API
-client = Client()
-client.login(user, pw)
 
 # Input query and translate into target langauge
 query = 'Canadiens' # replace query in English
