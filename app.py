@@ -1,5 +1,7 @@
 import streamlit as st
 from src.stages.stage1_input import render_input_form, display_search_summary
+from src.stages.stage2_search import web_search
+from src.stages.stage4_output import display_results
 
 # Page config
 st.set_page_config(
@@ -36,10 +38,15 @@ def main():
         st.markdown("---")
         st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
         
+        # Perform web search
+        results, original_queries, translated_queries = web_search(search_params)
+        
+        # Display results
+        display_results(results, search_params, original_queries, translated_queries)
+        
         # Show raw data for debugging (remove in production)
         with st.expander("Debug: View Raw Parameters"):
             st.json(search_params, expanded=False)
 
 if __name__ == "__main__":
     main()
-

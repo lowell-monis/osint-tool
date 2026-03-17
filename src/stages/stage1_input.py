@@ -53,7 +53,7 @@ def render_input_form():
             start_date = st.date_input(
                 "Start Date",
                 value=default_start,
-                min_value=datetime(2010, 1, 1),
+                min_value=datetime(2000, 1, 1),
                 max_value=datetime.now()
             )
         
@@ -61,7 +61,7 @@ def render_input_form():
             end_date = st.date_input(
                 "End Date",
                 value=default_end,
-                min_value=datetime(2010, 1, 1),
+                min_value=datetime(2000, 1, 1),
                 max_value=datetime.now()
             )
         
@@ -79,7 +79,7 @@ def render_input_form():
         # 6. Advanced Options (Collapsible)
         with st.expander("Advanced Options"):
             max_results = st.slider(
-                "Maximum results per source",
+                "Maximum number of queries",
                 min_value=5,
                 max_value=50,
                 value=20,
@@ -89,14 +89,14 @@ def render_input_form():
             
             platforms = st.multiselect(
                 "Platforms to search",
-                options=["Web/News", "Twitter/X", "Facebook", "TikTok (experimental)"],
-                default=["Web/News", "Twitter/X", "Facebook"],
+                options=["Web", "News", "Twitter/X", "Facebook", "TikTok (experimental)"],
+                default=["Web", "News", "Twitter/X", "Facebook"],
                 help="Select which platforms to search. TikTok is experimental and may not work reliably."
             )
         
         # Submit button
         submitted = st.form_submit_button("🚀 Generate Searches", use_container_width=True)
-        
+
         if submitted:
             # Validate inputs
             errors = []
