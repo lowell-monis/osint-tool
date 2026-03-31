@@ -10,6 +10,12 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+# Tabs
+tab1, tab2 = st.tabs(["Web", "Bluesky"])
+# with tab1:
+#     st.header("Web")
+# with tab2:
+#     st.header("Bluesky")
 
 # Sidebar
 with st.sidebar:
@@ -27,26 +33,49 @@ with st.sidebar:
 
 # Main content
 def main():
-    # Render input form
-    search_params = render_input_form()
-    
-    # If form was submitted successfully
-    if search_params:
-        display_search_summary(search_params)
+    with tab1:
+        # Render input form
+        search_params = render_input_form()
         
-        # Placeholder for next stage
-        st.markdown("---")
-        st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
+        # If form was submitted successfully
+        if search_params:
+            display_search_summary(search_params)
+            
+            # Placeholder for next stage
+            st.markdown("---")
+            st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
+            
+            # Perform web search
+            results, original_queries, translated_queries = web_search(search_params)
+            
+            # Display results
+            display_results(results, search_params, original_queries, translated_queries)
+            
+            # Show raw data for debugging (remove in production)
+            with st.expander("Debug: View Raw Parameters"):
+                st.json(search_params, expanded=False)
+    with tab2:
+        # Render input form
+        # search_params = render_input_form()
+        st.info("Form coming soon")
         
-        # Perform web search
-        results, original_queries, translated_queries = web_search(search_params)
-        
-        # Display results
-        display_results(results, search_params, original_queries, translated_queries)
-        
-        # Show raw data for debugging (remove in production)
-        with st.expander("Debug: View Raw Parameters"):
-            st.json(search_params, expanded=False)
+        # If form was submitted successfully
+        if search_params:
+            display_search_summary(search_params)
+            
+            # Placeholder for next stage
+            st.markdown("---")
+            st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
+            
+            # Perform web search
+            results, original_queries, translated_queries = web_search(search_params)
+            
+            # Display results
+            display_results(results, search_params, original_queries, translated_queries)
+            
+            # Show raw data for debugging (remove in production)
+            with st.expander("Debug: View Raw Parameters"):
+                st.json(search_params, expanded=False)
 
 if __name__ == "__main__":
     main()
