@@ -22,14 +22,7 @@ with st.sidebar:
     st.title("CrossLing")
     st.markdown("**Multilingual OSINT for Human Rights**")
     st.markdown("---")
-    st.markdown("### Current Stage")
-    st.info("Stage 1: User Input")
-    st.markdown("---")
-    st.markdown("### Pipeline Status")
-    st.markdown("✅ Stage 1: Input")
-    st.markdown("⏳ Stage 2: Search Generation")
-    st.markdown("⏳ Stage 3: Scraping")
-    st.markdown("⏳ Stage 4: Output")
+    
 
 # Main content
 def main():
