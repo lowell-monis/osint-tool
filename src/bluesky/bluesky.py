@@ -145,6 +145,7 @@ def perform_bluesky_searches(queries, search_params):
                     entry = {
                         "display_name": post.author.display_name,
                         "handle": post.author.handle,
+                        "text": post.record.text,
                         "url": url
                     }
                 posts.append(entry)
