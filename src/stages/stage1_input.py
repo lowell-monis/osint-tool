@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime, timedelta
 
-def render_input_form():
+def render_input_form(platform):
     """
     Renders the user input form for CrossLing.
     Returns a dictionary with user inputs.
@@ -14,7 +14,7 @@ def render_input_form():
     if 'search_params' not in st.session_state:
         st.session_state.search_params = None
     
-    with st.form("search_form"):
+    with st.form(key=platform):
         # 1. English Keywords (Required)
         st.subheader("Search Terms")
         keywords = st.text_area(
