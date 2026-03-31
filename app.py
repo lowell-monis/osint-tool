@@ -2,6 +2,7 @@ import streamlit as st
 from src.stages.stage1_input import render_input_form, display_search_summary
 from src.stages.stage2_search import web_search
 from src.stages.stage4_output import display_results
+import deepl
 
 # Page config
 st.set_page_config(
