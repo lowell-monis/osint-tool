@@ -1,4 +1,4 @@
-altair
+altair<5
 annotated-types
 anyio
 asttokens
@@ -70,7 +70,7 @@ smmap
 sniffio
 soupsieve
 stack-data
-streamlit
+streamlit>=1.35.0
 tenacity
 tinycss2
 toml
