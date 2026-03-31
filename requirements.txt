@@ -51,7 +51,7 @@ pillow
 pipreqs
 platformdirs
 prompt_toolkit
-protobuf
+protobuf<=3.20.3
 pure_eval
 pyarrow
 pydantic
