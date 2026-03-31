@@ -130,34 +130,35 @@ def translate_web_search_queries(english_queries, search_params):
 
     return translated_queries
 
-def perform_bluesky_searches(queries):
+def perform_bluesky_searches(queries, search_params):
+    checklimit = 0
     posts = []
-    for query in queries:
-        try:
-            results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(query), 'limit': search_params['max_results']}) # Replace lang: https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes - set 2
-            for post in results.posts:
-                text = post.record.text
-                # t_text = deepl_client.translate_text(text, target_lang="EN-US")
-                # print(post.author.display_name + ": " + str(t_text) + "\n----------")
-                rkey = post.uri.split("/")[-1]
-                url = f"https://bsky.app/profile/{post.author.handle}/post/{rkey}"
-                print(post.author.display_name + " (" + post.author.handle + ")"+ ": " + str(text) + "\n" + url +"\n----------") # Original version for debugging
-                entry = {
-                    "display_name": post.author.display_name,
-                    "handle": post.author.handle,
-                    "url": url
-                }
-            posts.append(entry)
-        except Exception as e:
-            st.error(f"Error translating query: {e}")
+    while checklimit < search_params['max_results']:
+        for query in queries:
+            try:
+                results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(query)})
+                for post in results.posts:
+                    text = post.record.text
+                    rkey = post.uri.split("/")[-1]
+                    url = f"https://bsky.app/profile/{post.author.handle}/post/{rkey}"
+                    print(post.author.display_name + " (" + post.author.handle + ")"+ ": " + str(text) + "\n" + url +"\n----------") # for debugging
+                    entry = {
+                        "display_name": post.author.display_name,
+                        "handle": post.author.handle,
+                        "url": url
+                    }
+                posts.append(entry)
+                checklimit += 1
+            except Exception as e:
+                st.error(f"Error translating query: {e}")
     return posts
 
 # ---DEBUGGING---
 # search_params = {
 #                 'keywords': "Libya",
 #                 'languages': {
-#                     'arabic': False,
-#                     'french': True
+#                     'arabic': True,
+#                     'french': False
 #                 },
 #                 'context': None,
 #                 'date_range': {
@@ -176,6 +177,6 @@ def perform_bluesky_searches(queries):
 
 # queries = generate_web_search_queries(search_params)
 # t_queries = translate_web_search_queries(queries, search_params)
-# bluesky_posts = perform_bluesky_searches(t_queries)
+# bluesky_posts = perform_bluesky_searches(t_queries, search_params)
 
 # print(bluesky_posts)
