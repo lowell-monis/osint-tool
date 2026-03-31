@@ -1,6 +1,7 @@
 altair<5
 annotated-types
 anyio
+atproto
 asttokens
 attrs
 backcall
