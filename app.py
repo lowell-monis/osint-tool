@@ -36,9 +36,6 @@ def main():
         if search_params:
             display_search_summary(search_params)
             
-            # Placeholder for next stage
-            st.markdown("---")
-            st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
             
             # Perform web search
             results, original_queries, translated_queries = web_search(search_params)
@@ -58,9 +55,6 @@ def main():
         if search_params:
             display_search_summary(search_params)
             
-            # Placeholder for next stage
-            st.markdown("---")
-            st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
             
             # Perform web search
             results, original_queries, translated_queries = bluesky_search(search_params)
