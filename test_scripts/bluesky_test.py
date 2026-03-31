@@ -21,7 +21,7 @@ query = '' # replace query in English
 t_query = deepl_client.translate_text(query, target_lang="") # Replace target lang: https://developers.deepl.com/docs/getting-started/supported-languages
 
 # Search for posts in target language and translate back into English
-results = client.app.bsky.feed.search_posts({'q': query, 'limit': 10, 'lang': ''}) # Replace lang: https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes - set 2
+results = client.app.bsky.feed.search_posts({'q': str(t_query), 'limit': 10, 'lang': ''}) # Replace lang: https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes - set 2
 for post in results.posts:
     text = post.record.text
     t_text = deepl_client.translate_text(text, target_lang="EN-US")
