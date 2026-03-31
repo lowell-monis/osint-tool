@@ -35,7 +35,7 @@ with st.sidebar:
 def main():
     with tab1:
         # Render input form
-        search_params = render_input_form()
+        search_params = render_input_form("web")
         
         # If form was submitted successfully
         if search_params:
@@ -56,8 +56,8 @@ def main():
                 st.json(search_params, expanded=False)
     with tab2:
         # Render input form
-        # search_params = render_input_form()
-        st.info("Form coming soon")
+        search_params = render_input_form("bsky")
+        # st.info("Form coming soon")
         
         # If form was submitted successfully
         if search_params:
