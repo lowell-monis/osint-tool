@@ -156,7 +156,7 @@ def perform_web_searches(translated_queries, search_params):
             lang_code = "ar" if search_params['languages']['arabic'] else "fr"
             results = brave_client.search(
                 query=query,
-                count=search_params['max_results'],
+                count=20,
                     lang=lang_code,
                 date_range=f"{search_params['date_range']['start']}to{search_params['date_range']['end']}"
             )
