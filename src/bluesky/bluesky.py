@@ -90,7 +90,7 @@ class DeepL:
             st.error(f"Error translating text with DeepL: {e}")
             return text
         
-def generate_web_search_queries(search_params):
+def generate_bluesky_search_queries(search_params):
     groq_model = GroqModel(GROQ_API_KEY)
     prompt = """
 You are an expert OSINT analyst. Based on the following search parameters, generate a list of specific and effective Bluesky search queries that would help gather information relevant to human rights investigations. The queries should be designed to find a variety of sources, including news articles, social media posts, reports, and other online content. Consider the keywords, context, and any other relevant information provided in the search parameters to create queries that are likely to yield useful results. Make sure the queries are optimized for Bluesky's search functionality.
@@ -99,8 +99,6 @@ You are an expert OSINT analyst. Based on the following search parameters, gener
 - Search for a handle to find posts that mention the user
 - Paste URLs to search for posts that contain the URL, prefix the URL with domain: to find posts that share a domain
 - Use lang: followed by the 2 character ISO code to search for posts in a specific language
-- Use since: and until: to search in a date range in YYYY-MM-DD format
-
 """
     
     response = groq_model.get_response(
@@ -112,18 +110,19 @@ You are an expert OSINT analyst. Based on the following search parameters, gener
 
     return response
 
-def translate_web_search_queries(english_queries, search_params):
+def translate_bluesky_search_queries(english_queries, search_params):
     deepl_client = DeepL(DEEPL_API_KEY)
     translated_queries = []
     
     for query in english_queries['queries']:
         try:
-            print(f"DEBUG: Translating query: {query}")
-            translated_query = deepl_client.translate(
-                text=query,
-                target_lang="AR" if search_params['languages']['arabic'] else "FR"
-            )
-            translated_queries.append(translated_query)
+            if query:
+                print(f"DEBUG: Translating query: {query}")
+                translated_query = deepl_client.translate(
+                    text=query,
+                    target_lang="AR" if search_params['languages']['arabic'] else "FR"
+                )
+                translated_queries.append(translated_query)
         except Exception as e:
             st.error(f"Error translating query: {e}")
             translated_queries.append(query)
@@ -133,26 +132,34 @@ def translate_web_search_queries(english_queries, search_params):
 def perform_bluesky_searches(queries, search_params):
     checklimit = 0
     posts = []
-    while checklimit < search_params['max_results']:
-        for query in queries:
-            try:
-                results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(query)})
-                for post in results.posts:
+    for query in queries:
+        try:
+            results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(query), 'since': str(search_params['date_range']['start'].strftime('%Y-%m-%dT%H:%M:%SZ')), 'until': str(search_params['date_range']['end'].strftime('%Y-%m-%dT%H:%M:%SZ'))})
+            for post in results.posts:
+                if not post.record.text:
+                    text = " "
+                else:
                     text = post.record.text
-                    rkey = post.uri.split("/")[-1]
-                    url = f"https://bsky.app/profile/{post.author.handle}/post/{rkey}"
-                    print(post.author.display_name + " (" + post.author.handle + ")"+ ": " + str(text) + "\n" + url +"\n----------") # for debugging
-                    entry = {
-                        "display_name": post.author.display_name,
-                        "handle": post.author.handle,
-                        "text": post.record.text,
-                        "url": url
-                    }
+                rkey = post.uri.split("/")[-1]
+                url = f"https://bsky.app/profile/{post.author.handle}/post/{rkey}"
+                print(post.author.display_name + " (" + post.author.handle + ")"+ ": " + str(text) + "\n" + url +"\n----------") # for debugging
+                entry = {
+                    "title": post.author.display_name + " (" + post.author.handle + ")",
+                    "description": post.record.text,
+                    "url": url
+                }
                 posts.append(entry)
-                checklimit += 1
-            except Exception as e:
-                st.error(f"Error translating query: {e}")
+        except Exception as e:
+            st.error(f"Error translating query: {e}")
     return posts
+
+def bluesky_search(search_params):
+    english_queries = generate_bluesky_search_queries(search_params)
+    translated_queries = translate_bluesky_search_queries(english_queries, search_params)
+    results = perform_bluesky_searches(translated_queries, search_params)
+    
+    orig_queries = english_queries.get('queries', []) if isinstance(english_queries, dict) else english_queries
+    return results, orig_queries, translated_queries
 
 # ---DEBUGGING---
 # search_params = {
@@ -175,9 +182,9 @@ def perform_bluesky_searches(queries, search_params):
 #                 'platforms': "News",
 #                 'timestamp': datetime.now()
 #             }
-
-# queries = generate_web_search_queries(search_params)
-# t_queries = translate_web_search_queries(queries, search_params)
+# bluesky_search(search_params)
+# queries = generate_bluesky_search_queries(search_params)
+# t_queries = translate_bluesky_search_queries(queries, search_params)
 # bluesky_posts = perform_bluesky_searches(t_queries, search_params)
 
 # print(bluesky_posts)
