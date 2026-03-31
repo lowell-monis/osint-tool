@@ -82,7 +82,7 @@ def render_input_form(platform):
                 "Maximum number of queries",
                 min_value=5,
                 max_value=50,
-                value=20,
+                value=10,
                 step=5,
                 help="Limit results to stay within API quotas"
             )
