@@ -28,25 +28,21 @@ with st.sidebar:
 # Main content
 def main():
     # Render input form
-    search_params = render_input_form()
+    params = render_input_form()
     
     # If form was submitted successfully
-    if search_params:
-        display_search_summary(search_params)
-        
-        # Placeholder for next stage
-        st.markdown("---")
-        st.info("🔄 Stage 2 (Search Generation) will appear here once implemented.")
+    if params:
+        display_search_summary(params)
         
         # Perform web search
-        results, original_queries, translated_queries = web_search(search_params)
+        results, original_queries, translated_queries = web_search(params)
         
         # Display results
-        display_results(results, search_params, original_queries, translated_queries)
+        display_results(results, params, original_queries, translated_queries)
         
         # Show raw data for debugging (remove in production)
         with st.expander("Debug: View Raw Parameters"):
-            st.json(search_params, expanded=False)
+            st.json(params, expanded=False)
 
 if __name__ == "__main__":
     main()
