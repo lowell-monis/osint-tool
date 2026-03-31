@@ -8,7 +8,7 @@ from streamlit.errors import StreamlitSecretNotFoundError
 from groq import Groq as GroqClient
 from datetime import datetime, timedelta
 from atproto import Client
-
+import traceback
 # Load API keys from environment variables or Streamlit secrets
 load_dotenv()
 
@@ -115,17 +115,20 @@ def translate_bluesky_search_queries(english_queries, search_params):
     translated_queries = []
     
     for query in english_queries['queries']:
-        try:
-            if query:
+        if isinstance(query, str) and query.strip():
+            try:
                 print(f"DEBUG: Translating query: {query}")
                 translated_query = deepl_client.translate(
                     text=query,
                     target_lang="AR" if search_params['languages']['arabic'] else "FR"
                 )
-                translated_queries.append(translated_query)
-        except Exception as e:
-            st.error(f"Error translating query: {e}")
-            translated_queries.append(query)
+                if isinstance(translated_query, str):
+                    translated_queries.append(translated_query)
+                else:
+                    translated_queries.append(query)
+            except Exception as e:
+                st.error(f"Error translating query: {e}")
+                translated_queries.append(query)
 
     return translated_queries
 
