@@ -65,17 +65,6 @@ def render_input_form(platform):
                 max_value=datetime.now()
             )
         
-        # 5. Media Type Preferences
-        st.subheader("Media Types to Search")
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            include_text = st.checkbox("Text (articles, posts)", value=True)
-        with col2:
-            include_images = st.checkbox("Images", value=True)
-        with col3:
-            include_videos = st.checkbox("Videos", value=False)
-        
         # 6. Advanced Options (Collapsible)
         with st.expander("Advanced Options"):
             max_results = st.slider(
@@ -85,13 +74,6 @@ def render_input_form(platform):
                 value=15,
                 step=5,
                 help="Limit results to stay within API quotas"
-            )
-            
-            platforms = st.multiselect(
-                "Platforms to search",
-                options=["Web", "News", "Twitter/X", "Facebook", "TikTok (experimental)"],
-                default=["Web", "News", "Twitter/X", "Facebook"],
-                help="Select which platforms to search. TikTok is experimental and may not work reliably."
             )
         
         # Submit button
@@ -110,9 +92,6 @@ def render_input_form(platform):
             if start_date > end_date:
                 errors.append("❌ Start date must be before end date")
             
-            if not include_text and not include_images and not include_videos:
-                errors.append("❌ Select at least one media type")
-            
             if errors:
                 for error in errors:
                     st.error(error)
@@ -129,11 +108,6 @@ def render_input_form(platform):
                 'date_range': {
                     'start': start_date,
                     'end': end_date
-                },
-                'media_types': {
-                    'text': include_text,
-                    'images': include_images,
-                    'videos': include_videos
                 },
                 'max_results': max_results,
                 'platforms': platforms,
