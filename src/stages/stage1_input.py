@@ -25,14 +25,12 @@ def render_input_form(platform):
         )
         
         # 2. Target Languages (Required)
-        st.subheader("Target Languages")
-        col1, col2 = st.columns(2)
+        st.subheader("Target Language")
         
-        with col1:
-            arabic = st.checkbox("Arabic", value=True)
-        with col2:
-            french = st.checkbox("French", value=False)
-        
+        target_language = st.selectbox("Select Target Language", options=["Arabic", "French"], help="Select the primary target language for your search queries.")
+        arabic = target_language == "Arabic"
+        french = target_language == "French"
+
         # 3. Optional Context
         st.subheader("Context (Optional but Recommended)")
         context = st.text_area(
@@ -65,16 +63,15 @@ def render_input_form(platform):
                 max_value=datetime.now()
             )
         
-        # 6. Advanced Options (Collapsible)
-        with st.expander("Advanced Options"):
-            max_results = st.slider(
-                "Maximum number of queries",
-                min_value=5,
-                max_value=50,
-                value=15,
-                step=5,
-                help="Limit results to stay within API quotas"
-            )
+        # 6. Advanced Options
+        max_results = st.slider(
+            "Maximum number of queries",
+            min_value=5,
+            max_value=50,
+            value=15,
+            step=5,
+            help="Limit results to stay within API quotas"
+        )
         
         # Submit button
         submitted = st.form_submit_button("🚀 Generate Searches", use_container_width=True)
