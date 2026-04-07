@@ -110,7 +110,6 @@ def render_input_form(platform):
                     'end': end_date
                 },
                 'max_results': max_results,
-                'platforms': platforms,
                 'timestamp': datetime.now()
             }
             
@@ -149,9 +148,7 @@ def display_search_summary(params):
     with col2:
         date_str = f"{params['date_range']['start'].strftime('%Y-%m-%d')} to {params['date_range']['end'].strftime('%Y-%m-%d')}"
         st.metric("Date Range", date_str)
-        
-        st.metric("Platforms", f"{len(params['platforms'])} selected")
-    
+            
     if params['context']:
         with st.expander("View Context"):
             st.info(params['context'])
