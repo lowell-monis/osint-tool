@@ -28,16 +28,12 @@ if not GROQ_API_KEY:
         GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
     except StreamlitSecretNotFoundError:
         GROQ_API_KEY = None
-SERPER_API_KEY = os.getenv("SERPER_API_KEY")
-if not SERPER_API_KEY:
-    try:
-        SERPER_API_KEY = st.secrets.get("SERPER_API_KEY")
-    except StreamlitSecretNotFoundError:
-        SERPER_API_KEY = None
-
-
-# Set parameters for web search
-GROQ_MODEL = "llama-3.1-8b-instant"
+# SERPER_API_KEY = os.getenv("SERPER_API_KEY")
+# if not SERPER_API_KEY:
+#     try:
+#         SERPER_API_KEY = st.secrets.get("SERPER_API_KEY")
+#     except StreamlitSecretNotFoundError:
+#         SERPER_API_KEY = None
 
 
 # PRINT DEBUGGING INFO ABOUT EVERYTHING HAPPENING TO FIGURE OUT WHAT'S GOING WRONG WITH THE WEB SEARCH STAGE
@@ -88,7 +84,7 @@ class Brave:
     def __init__(self, api_key):
         self.api_key = api_key
     
-    def search(self, query, count=20, lang=None, date_range=None, media_types=None):
+    def search(self, query, count=20, lang=None, date_range=None):
         url = "https://api.search.brave.com/res/v1/web/search"
         
         headers = {
@@ -109,9 +105,9 @@ class Brave:
         response.raise_for_status()
         return response.json()
 
-class Serper:
-    def __init__(self, api_key):
-        self.api_key = api_key
+# class Serper:
+#     def __init__(self, api_key):
+#         self.api_key = api_key
         
 def generate_web_search_queries(search_params):
     groq_model = GroqModel(GROQ_API_KEY)
