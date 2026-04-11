@@ -1,6 +1,31 @@
 import streamlit as st
 import pandas as pd
+import os
+import deepl
+from dotenv import load_dotenv
+from streamlit.errors import StreamlitSecretNotFoundError
 
+# Deeepl
+DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
+if not DEEPL_API_KEY:
+    try:
+        DEEPL_API_KEY = st.secrets.get("DEEPL_API_KEY")
+    except StreamlitSecretNotFoundError:
+        DEEPL_API_KEY = None
+
+class DeepL:
+    def __init__(self, api_key):
+        self.client = deepl.DeepLClient(api_key)
+        
+    def translate(self, text: str, target_lang: str) -> str:
+        try:
+            response = self.client.translate_text(text, target_lang=target_lang)
+            return response.text
+        except Exception as e:
+            st.error(f"Error translating text with DeepL: {e}")
+            return text
+        
+deepl_client = DeepL(DEEPL_API_KEY)
 
 def display_results(results, search_params=None, original_queries=None, translated_queries=None):
     """
@@ -56,15 +81,28 @@ def display_results(results, search_params=None, original_queries=None, translat
             with st.container():
                 # Display title as a link
                 title = result.get('title', 'No Title Available')
+                translated_title = deepl_client.translate(
+                text=title,
+                target_lang="EN-US"
+            )
                 url = result.get('url', '#')
-                st.markdown(f"### {idx + 1}. [{title}]({url})")
+                st.markdown(f"### {idx + 1}. [{translated_title}]({url})")
                 
-                # Display metadata (Source and Snippet)
+                # Translate and display metadata (Source and Snippet)
                 source_name = url.split('/')[2] if '://' in url else "Unknown Source"
                 st.caption(f"**Source:** {source_name}")
                 
                 description = result.get('description', result.get('snippet', 'No description available.'))
-                st.write(description)
+                translated_description = deepl_client.translate(
+                text=description,
+                target_lang="EN-US"
+            )
+                st.write(translated_description)
+                
+                # Show in original language
+                with st.expander("🌐 View Original", expanded=False):
+                    st.markdown(f"### {title}")
+                    st.write(description)
                 
                 # Optional: Display extra metadata if available (like date)
                 if 'datePublished' in result:
