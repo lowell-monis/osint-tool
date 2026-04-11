@@ -5,6 +5,7 @@ import deepl
 from dotenv import load_dotenv
 from streamlit.errors import StreamlitSecretNotFoundError
 
+# Deeepl
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
 if not DEEPL_API_KEY:
     try:
@@ -86,15 +87,22 @@ def display_results(results, search_params=None, original_queries=None, translat
             )
                 url = result.get('url', '#')
                 st.markdown(f"### {idx + 1}. [{translated_title}]({url})")
-
-                st.caption(f"**Original:** {title}")
                 
-                # Display metadata (Source and Snippet)
+                # Translate and display metadata (Source and Snippet)
                 source_name = url.split('/')[2] if '://' in url else "Unknown Source"
                 st.caption(f"**Source:** {source_name}")
                 
                 description = result.get('description', result.get('snippet', 'No description available.'))
-                st.write(description)
+                translated_description = deepl_client.translate(
+                text=description,
+                target_lang="EN-US"
+            )
+                st.write(translated_description)
+                
+                # Show in original language
+                with st.expander("🌐 View Original", expanded=False):
+                    st.markdown(f"### {title}")
+                    st.write(description)
                 
                 # Optional: Display extra metadata if available (like date)
                 if 'datePublished' in result:
