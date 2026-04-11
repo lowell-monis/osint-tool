@@ -13,28 +13,21 @@ load_dotenv()
 BRAVE_API_KEY = os.getenv("BRAVE_API_KEY")
 if not BRAVE_API_KEY:
     try:
-        BRAVE_API_KEY = st.secrets.get("BRAVE_API_KEY")
+        BRAVE_API_KEY = st.session_state.get("BRAVE_API_KEY")
     except StreamlitSecretNotFoundError:
         BRAVE_API_KEY = None
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
 if not DEEPL_API_KEY:
     try:
-        DEEPL_API_KEY = st.secrets.get("DEEPL_API_KEY")
+        DEEPL_API_KEY = st.session_state.get("DEEPL_API_KEY")
     except StreamlitSecretNotFoundError:
         DEEPL_API_KEY = None
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     try:
-        GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
+        GROQ_API_KEY = st.session_state.get("GROQ_API_KEY")
     except StreamlitSecretNotFoundError:
         GROQ_API_KEY = None
-# SERPER_API_KEY = os.getenv("SERPER_API_KEY")
-# if not SERPER_API_KEY:
-#     try:
-#         SERPER_API_KEY = st.secrets.get("SERPER_API_KEY")
-#     except StreamlitSecretNotFoundError:
-#         SERPER_API_KEY = None
-
 
 # PRINT DEBUGGING INFO ABOUT EVERYTHING HAPPENING TO FIGURE OUT WHAT'S GOING WRONG WITH THE WEB SEARCH STAGE
 
