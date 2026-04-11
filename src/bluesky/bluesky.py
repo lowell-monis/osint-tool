@@ -15,27 +15,27 @@ load_dotenv()
 DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
 if not DEEPL_API_KEY:
     try:
-        DEEPL_API_KEY = st.secrets.get("DEEPL_API_KEY")
+        DEEPL_API_KEY = st.session_state.get("DEEPL_API_KEY")
     except StreamlitSecretNotFoundError:
         DEEPL_API_KEY = None
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     try:
-        GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
+        GROQ_API_KEY = st.session_state.get("GROQ_API_KEY")
     except StreamlitSecretNotFoundError:
         GROQ_API_KEY = None
 
 BLUESKY_USER = os.getenv('BLUESKY_USER')
 if not GROQ_API_KEY:
     try:
-        GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
+        GROQ_API_KEY = st.session_state.get("GROQ_API_KEY")
     except StreamlitSecretNotFoundError:
         GROQ_API_KEY = None
 
 BLUESKY_PW = os.getenv('BLUESKY_PW')
 if not BLUESKY_PW:
     try:
-        BLUESKY_PW = st.secrets.get("BLUESKY_PW")
+        BLUESKY_PW = st.session_state.get("BLUESKY_PW")
     except StreamlitSecretNotFoundError:
         BLUESKY_PW = None
 
