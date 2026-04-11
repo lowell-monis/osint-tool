@@ -112,10 +112,10 @@ class Brave:
 def generate_web_search_queries(search_params):
     groq_model = GroqModel(GROQ_API_KEY)
     prompt = "You are an expert OSINT analyst. Based on the following search parameters, generate a list of specific and effective web search queries that would help gather information relevant to human rights investigations. The queries should be designed to find a variety of sources, including news articles, social media posts, reports, and other online content. Consider the keywords, context, and any other relevant information provided in the search parameters to create queries that are likely to yield useful results."
-    
+    prompt2 = "You are an expert OSINT analyst specializing in human rights investigations. Your task is to generate a list of specific and effective search queries that will be machine-translated and used to find local, grassroots, and domestic sources in the target region that would help gather information relevant to human rights investigations..  Consider the keywords, context, and any other relevant information provided in the search parameters to create queries that are likely to yield useful results. Every query must be designed to surface local and domestic sources only, so append exclusion operators to block international organizations (e.g., -site:un.org -site:amnesty.org -site:hrw.org -site:ohchr.org -site:reuters.com -site:bbc.com) and include a country-code domain hint to bias results toward local sources (e.g., site:.fr)."
     response = groq_model.get_response(
         num_queries=search_params['max_results'],
-        prompt=prompt,
+        prompt=prompt2,
         keywords=search_params['keywords'],
         context=search_params['context']
     )
