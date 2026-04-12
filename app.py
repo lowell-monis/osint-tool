@@ -80,7 +80,7 @@ def main():
             results, original_queries, translated_queries = web_search(search_params)
             
             # Display results
-            display_results(results, search_params, original_queries, translated_queries)
+            display_results(results, search_params, original_queries, translated_queries, platform="websearch")
             
             # Show raw data for debugging (remove in production)
             with st.expander("Debug: View Raw Parameters"):
@@ -99,7 +99,7 @@ def main():
             results, original_queries, translated_queries = bluesky_search(search_params)
             
             # Display results
-            display_results(results, search_params, original_queries, translated_queries)
+            display_results(results, search_params, original_queries, translated_queries, platform="bluesky")
             
             # Show raw data for debugging (remove in production)
             with st.expander("Debug: View Raw Parameters"):

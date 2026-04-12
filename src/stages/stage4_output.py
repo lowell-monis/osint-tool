@@ -34,7 +34,7 @@ def cached_translate(text: str, target_lang: str) -> str:
         return text
     return deepl_client.translate(text, target_lang)
 
-def display_results(results, search_params=None, original_queries=None, translated_queries=None):
+def display_results(results, search_params=None, original_queries=None, translated_queries=None, platform="websearch"):
     """
     Displays the search results in an intuitive, organized format.
     
@@ -143,9 +143,9 @@ def display_results(results, search_params=None, original_queries=None, translat
         start_date = search_params['date_range']['start'].strftime('%Y-%m-%d')
         end_date = search_params['date_range']['end'].strftime('%Y-%m-%d')
         date_str = f"{start_date}_to_{end_date}"
-        file_name = f"crossling_{target_lang_str}_{keywords_str}_{date_str}.csv"
+        file_name = f"crossling_{platform}_{target_lang_str}_{keywords_str}_{date_str}.csv"
     else:
-        file_name = "crossling_results.csv"
+        file_name = f"crossling_{platform}_results.csv"
     
     st.markdown("---")
     st.download_button(

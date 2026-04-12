@@ -13,36 +13,6 @@ import pandas as pd
 # Load API keys from environment variables or Streamlit secrets
 load_dotenv()
 
-DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
-if not DEEPL_API_KEY:
-    try:
-        DEEPL_API_KEY = st.session_state.get("DEEPL_API_KEY")
-    except StreamlitSecretNotFoundError:
-        DEEPL_API_KEY = None
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    try:
-        GROQ_API_KEY = st.session_state.get("GROQ_API_KEY")
-    except StreamlitSecretNotFoundError:
-        GROQ_API_KEY = None
-
-BLUESKY_USER = os.getenv('BLUESKY_USER')
-if not GROQ_API_KEY:
-    try:
-        GROQ_API_KEY = st.session_state.get("GROQ_API_KEY")
-    except StreamlitSecretNotFoundError:
-        GROQ_API_KEY = None
-
-BLUESKY_PW = os.getenv('BLUESKY_PW')
-if not BLUESKY_PW:
-    try:
-        BLUESKY_PW = st.session_state.get("BLUESKY_PW")
-    except StreamlitSecretNotFoundError:
-        BLUESKY_PW = None
-
-BLUESKY_CLIENT = Client()
-BLUESKY_CLIENT.login(BLUESKY_USER, BLUESKY_PW)
-
 # Set parameters for web search
 GROQ_MODEL = "llama-3.1-8b-instant"
 
@@ -91,8 +61,23 @@ class DeepL:
             st.error(f"Error translating text with DeepL: {e}")
             return text
         
+def get_bluesky_client():
+    user = st.session_state.get("bluesky_user") or os.getenv("BLUESKY_USER")
+    pw = st.session_state.get("bluesky_pw") or os.getenv("BLUESKY_PW")
+    client = Client()
+    if user and pw:
+        try:
+            client.login(user, pw)
+            return client
+        except Exception as e:
+            st.error(f"Bluesky login failed: {e}")
+    else:
+        st.error("Missing Bluesky credentials.")
+    return None
+
 def generate_bluesky_search_queries(search_params):
-    groq_model = GroqModel(GROQ_API_KEY)
+    groq_key = st.session_state.get("groq_api_key") or os.getenv("GROQ_API_KEY")
+    groq_model = GroqModel(groq_key)
     prompt = """
 You are an expert OSINT analyst. Based on the following search parameters, generate a list of specific and effective Bluesky search queries that would help gather information relevant to human rights investigations. The queries should be designed to find a variety of sources, including news articles, social media posts, reports, and other online content. Consider the keywords, context, and any other relevant information provided in the search parameters to create queries that are likely to yield useful results. Make sure the queries are optimized for Bluesky's search functionality.
 - Enclose with double quotes to find specific phrases
@@ -112,7 +97,8 @@ You are an expert OSINT analyst. Based on the following search parameters, gener
     return response
 
 def translate_bluesky_search_queries(english_queries, search_params):
-    deepl_client = DeepL(DEEPL_API_KEY)
+    deepl_key = st.session_state.get("deepl_api_key") or os.getenv("DEEPL_API_KEY")
+    deepl_client = DeepL(deepl_key)
     translated_queries = []
     
     for query in english_queries['queries']:
@@ -139,11 +125,15 @@ def remove_duplicate_links(df):
     return df.drop_duplicates(subset=['url']).reset_index(drop=True)
 
 def perform_bluesky_searches(translated_queries, search_params, original_queries):
+    client = get_bluesky_client()
+    if not client:
+        return pd.DataFrame()
+        
     checklimit = 0
     posts = []
     for orig_query, trans_query in zip(original_queries, translated_queries):
         try:
-            results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(trans_query), 'since': str(search_params['date_range']['start'].strftime('%Y-%m-%dT%H:%M:%SZ')), 'until': str(search_params['date_range']['end'].strftime('%Y-%m-%dT%H:%M:%SZ'))})
+            results = client.app.bsky.feed.search_posts({'q': str(orig_query), 'since': str(search_params['date_range']['start'].strftime('%Y-%m-%dT%H:%M:%SZ')), 'until': str(search_params['date_range']['end'].strftime('%Y-%m-%dT%H:%M:%SZ'))})
             for post in results.posts:
                 if not post.record.text:
                     text = " "
