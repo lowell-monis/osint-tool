@@ -68,9 +68,10 @@ with st.sidebar:
 def main():
     with tab1:
         # Render input form
-        search_params = render_input_form("web")
+        render_input_form("web")
         
-        # If form was submitted successfully
+        # Check session state instead of direct form return
+        search_params = st.session_state.get("web_search_params")
         if search_params:
             display_search_summary(search_params)
             
@@ -86,10 +87,10 @@ def main():
                 st.json(search_params, expanded=False)
     with tab2:
         # Render input form
-        search_params = render_input_form("bsky")
-        # st.info("Form coming soon")
+        render_input_form("bsky")
         
-        # If form was submitted successfully
+        # Check session state instead of direct form return
+        search_params = st.session_state.get("bsky_search_params")
         if search_params:
             display_search_summary(search_params)
             

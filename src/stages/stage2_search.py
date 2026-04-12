@@ -6,6 +6,7 @@ import json
 import streamlit as st
 from streamlit.errors import StreamlitSecretNotFoundError
 from groq import Groq as GroqClient
+import pandas as pd
 
 
 # Load API keys from environment variables or Streamlit secrets
@@ -133,32 +134,49 @@ def translate_web_search_queries(english_queries, search_params):
 
     return translated_queries
 
-def perform_web_searches(translated_queries, search_params):
+def remove_duplicate_links(df):
+    if df.empty or 'url' not in df.columns:
+        return df
+    return df.drop_duplicates(subset=['url']).reset_index(drop=True)
+
+def perform_web_searches(translated_queries, search_params, original_queries):
     brave_client = Brave(BRAVE_API_KEY)
     all_results = []
     
     print("DEBUG: Performing web searches with the following translated queries:")
     print(translated_queries)
     
-    for query in translated_queries:
+    for orig_query, trans_query in zip(original_queries, translated_queries):
         try:
             lang_code = "ar" if search_params['languages']['arabic'] else "fr"
             results = brave_client.search(
-                query=query,
+                query=trans_query,
                 count=20,
                     lang=lang_code,
                 date_range=f"{search_params['date_range']['start']}to{search_params['date_range']['end']}"
             )
             extracted_results = results.get('web', {}).get('results', [])
-            all_results.extend(extracted_results)
+            for res in extracted_results:
+                res['original_query'] = orig_query
+                res['translated_query'] = trans_query
+                all_results.append(res)
         except Exception as e:
             st.error(f"Error performing web search: {e}")
-    return all_results
+            
+    df = pd.DataFrame(all_results)
+    df = remove_duplicate_links(df)
+    
+    # Group by queries by sorting them together
+    if not df.empty:
+        df = df.sort_values(by=['original_query', 'translated_query']).reset_index(drop=True)
+        
+    return df
 
+@st.cache_data(show_spinner=False)
 def web_search(search_params):
     english_queries = generate_web_search_queries(search_params)
-    translated_queries = translate_web_search_queries(english_queries, search_params)
-    results = perform_web_searches(translated_queries, search_params)
-    
     orig_queries = english_queries.get('queries', []) if isinstance(english_queries, dict) else english_queries
+    translated_queries = translate_web_search_queries(english_queries, search_params)
+    results = perform_web_searches(translated_queries, search_params, orig_queries)
+    
     return results, orig_queries, translated_queries

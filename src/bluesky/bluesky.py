@@ -9,6 +9,7 @@ from groq import Groq as GroqClient
 from datetime import datetime, timedelta
 from atproto import Client
 import traceback
+import pandas as pd
 # Load API keys from environment variables or Streamlit secrets
 load_dotenv()
 
@@ -132,12 +133,17 @@ def translate_bluesky_search_queries(english_queries, search_params):
 
     return translated_queries
 
-def perform_bluesky_searches(queries, search_params):
+def remove_duplicate_links(df):
+    if df.empty or 'url' not in df.columns:
+        return df
+    return df.drop_duplicates(subset=['url']).reset_index(drop=True)
+
+def perform_bluesky_searches(translated_queries, search_params, original_queries):
     checklimit = 0
     posts = []
-    for query in queries:
+    for orig_query, trans_query in zip(original_queries, translated_queries):
         try:
-            results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(query), 'since': str(search_params['date_range']['start'].strftime('%Y-%m-%dT%H:%M:%SZ')), 'until': str(search_params['date_range']['end'].strftime('%Y-%m-%dT%H:%M:%SZ'))})
+            results = BLUESKY_CLIENT.app.bsky.feed.search_posts({'q': str(trans_query), 'since': str(search_params['date_range']['start'].strftime('%Y-%m-%dT%H:%M:%SZ')), 'until': str(search_params['date_range']['end'].strftime('%Y-%m-%dT%H:%M:%SZ'))})
             for post in results.posts:
                 if not post.record.text:
                     text = " "
@@ -149,19 +155,30 @@ def perform_bluesky_searches(queries, search_params):
                 entry = {
                     "title": post.author.display_name + " (" + post.author.handle + ")",
                     "description": post.record.text,
-                    "url": url
+                    "url": url,
+                    "original_query": orig_query,
+                    "translated_query": trans_query
                 }
                 posts.append(entry)
         except Exception as e:
-            st.error(f"Error translating query: {e}")
-    return posts
+            st.error(f"Error performing Bluesky search: {e}")
+            
+    df = pd.DataFrame(posts)
+    df = remove_duplicate_links(df)
+    
+    # Group by queries by sorting them together
+    if not df.empty:
+        df = df.sort_values(by=['original_query', 'translated_query']).reset_index(drop=True)
+        
+    return df
 
+@st.cache_data(show_spinner=False)
 def bluesky_search(search_params):
     english_queries = generate_bluesky_search_queries(search_params)
-    translated_queries = translate_bluesky_search_queries(english_queries, search_params)
-    results = perform_bluesky_searches(translated_queries, search_params)
-    
     orig_queries = english_queries.get('queries', []) if isinstance(english_queries, dict) else english_queries
+    translated_queries = translate_bluesky_search_queries(english_queries, search_params)
+    results = perform_bluesky_searches(translated_queries, search_params, orig_queries)
+    
     return results, orig_queries, translated_queries
 
 # ---DEBUGGING---

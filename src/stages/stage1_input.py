@@ -11,8 +11,8 @@ def render_input_form(platform):
     st.markdown("Enter your search parameters below to find human rights evidence across languages.")
     
     # Initialize session state for form data if it doesn't exist
-    if 'search_params' not in st.session_state:
-        st.session_state.search_params = None
+    if f'{platform}_search_params' not in st.session_state:
+        st.session_state[f'{platform}_search_params'] = None
     
     with st.form(key=platform):
         # 1. English Keywords (Required)
@@ -111,7 +111,7 @@ def render_input_form(platform):
             }
             
             # Store in session state
-            st.session_state.search_params = search_params
+            st.session_state[f'{platform}_search_params'] = search_params
             
             # Success message
             st.success("✅ Search parameters validated! Proceeding to query generation...")
