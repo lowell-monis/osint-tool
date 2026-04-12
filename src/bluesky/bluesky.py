@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from atproto import Client
 import traceback
 import pandas as pd
+from utils.common import GroqModel, DeepL, remove_duplicate_links, get_credential
+
 # Load API keys from environment variables or Streamlit secrets
 load_dotenv()
 
@@ -19,51 +21,9 @@ GROQ_MODEL = "llama-3.1-8b-instant"
 
 # PRINT DEBUGGING INFO ABOUT EVERYTHING HAPPENING TO FIGURE OUT WHAT'S GOING WRONG WITH THE WEB SEARCH STAGE
 
-class GroqModel:
-    def __init__(self, api_key):
-        self.client = GroqClient(api_key=api_key)
-        self.model = "llama-3.1-8b-instant"
-        
-    def get_response(self, num_queries: int, prompt: str, keywords: str, context: str = None):
-        user_content = f"Keywords: {keywords}\n"
-        if context:
-            user_content += f"Context: {context}\n"
-
-        system_prompt = (
-            f"{prompt}\n"
-            f"Generate exactly {num_queries} search queries.\n"
-            "Return the queries as a JSON object with a single key 'queries' which is a list of strings. For example: {\"queries\": [\"query 1\", \"query 2\"]}"
-        )
-
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_content},
-                ],
-                response_format={"type": "json_object"},
-            )
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            st.error(f"Error generating search queries from LLM: {e}")
-            return {"queries": []}
-
-class DeepL:
-    def __init__(self, api_key):
-        self.client = deepl.DeepLClient(api_key)
-        
-    def translate(self, text: str, target_lang: str) -> str:
-        try:
-            response = self.client.translate_text(text, target_lang=target_lang)
-            return response.text
-        except Exception as e:
-            st.error(f"Error translating text with DeepL: {e}")
-            return text
-        
 def get_bluesky_client():
-    user = st.session_state.get("bluesky_user") or os.getenv("BLUESKY_USER")
-    pw = st.session_state.get("bluesky_pw") or os.getenv("BLUESKY_PW")
+    user = get_credential("bluesky_user", "BLUESKY_USER")
+    pw = get_credential("bluesky_pw", "BLUESKY_PW")
     client = Client()
     if user and pw:
         try:
@@ -76,7 +36,7 @@ def get_bluesky_client():
     return None
 
 def generate_bluesky_search_queries(search_params):
-    groq_key = st.session_state.get("groq_api_key") or os.getenv("GROQ_API_KEY")
+    groq_key = get_credential("groq_api_key", "GROQ_API_KEY")
     groq_model = GroqModel(groq_key)
     prompt = """
 You are an expert OSINT analyst. Based on the following search parameters, generate a list of specific and effective Bluesky search queries that would help gather information relevant to human rights investigations. The queries should be designed to find a variety of sources, including news articles, social media posts, reports, and other online content. Consider the keywords, context, and any other relevant information provided in the search parameters to create queries that are likely to yield useful results. Make sure the queries are optimized for Bluesky's search functionality.
@@ -97,7 +57,7 @@ You are an expert OSINT analyst. Based on the following search parameters, gener
     return response
 
 def translate_bluesky_search_queries(english_queries, search_params):
-    deepl_key = st.session_state.get("deepl_api_key") or os.getenv("DEEPL_API_KEY")
+    deepl_key = get_credential("deepl_api_key", "DEEPL_API_KEY")
     deepl_client = DeepL(deepl_key)
     translated_queries = []
     
@@ -118,11 +78,6 @@ def translate_bluesky_search_queries(english_queries, search_params):
                 translated_queries.append(query)
 
     return translated_queries
-
-def remove_duplicate_links(df):
-    if df.empty or 'url' not in df.columns:
-        return df
-    return df.drop_duplicates(subset=['url']).reset_index(drop=True)
 
 def perform_bluesky_searches(translated_queries, search_params, original_queries):
     client = get_bluesky_client()

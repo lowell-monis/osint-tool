@@ -1,8 +1,8 @@
 import streamlit as st
-from src.stages.stage1_input import render_input_form, display_search_summary
-from src.stages.stage2_search import web_search
+from src.input.input import render_input_form, display_search_summary
+from src.websearch.websearch import web_search
 from src.bluesky.bluesky import bluesky_search
-from src.stages.stage4_output import display_results
+from src.output.output import display_results
 import deepl
 
 # Page config
