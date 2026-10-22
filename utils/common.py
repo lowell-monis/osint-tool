@@ -33,7 +33,7 @@ def get_credential(state_key: str, env_key: str):
 class GroqModel:
     def __init__(self, api_key):
         self.client = GroqClient(api_key=api_key)
-        self.model = "llama-3.1-8b-instant"
+        self.model = "openai/gpt-oss-20b"
         
     def get_response(self, num_queries: int, prompt: str, keywords: str, context: str = None):
         user_content = f"Keywords: {keywords}\n"
