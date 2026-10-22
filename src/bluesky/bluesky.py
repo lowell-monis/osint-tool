@@ -16,7 +16,7 @@ from utils.common import GroqModel, DeepL, remove_duplicate_links, get_credentia
 load_dotenv()
 
 # Set parameters for web search
-GROQ_MODEL = "llama-3.1-8b-instant"
+GROQ_MODEL = "openai/gpt-oss-20b"
 
 
 # PRINT DEBUGGING INFO ABOUT EVERYTHING HAPPENING TO FIGURE OUT WHAT'S GOING WRONG WITH THE WEB SEARCH STAGE
